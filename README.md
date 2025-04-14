@@ -19,4 +19,5 @@ The resulting output looks like this:
 
 | Original Image | Region Proposal Image |
 |----------------|------------------------|
-| ![Original Image](path/to/original_image.jpg) | ![Region Proposal](path/to/region_proposal_image.jpg) |
+| ![Original Image](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/000002.jpg) | ![Region Proposal](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/out-0002.jpg) |
+| ![Original Image](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/000004.jpg) | ![Region Proposal](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/out-0004.jpg) |
