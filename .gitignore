@@ -5,4 +5,4 @@ __pycache__/
 *.h5
 .DS_Store
 .ipynb_checkpoints/
-data/
+data/VOC2007/
