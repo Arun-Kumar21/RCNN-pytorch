@@ -21,7 +21,7 @@ class RCNNDataset(Dataset):
     self.img_dir = os.path.join(voc_root, 'JPEGImages')
     self.annotation_dir = os.path.join(voc_root, 'Annotations')
 
-    self.image_files = sorted([f for f in os.listdir(self.image_dir) if f.endswith('.jpg')])
+    self.image_files = sorted([f for f in os.listdir(self.img_dir) if f.endswith('.jpg')])
     self.image_files = self.image_files[:images]
 
     self.samples = []
@@ -52,7 +52,7 @@ class RCNNDataset(Dataset):
 
         # If max_iou greater than threshold it is positive sample
         if max_iou > Config.IOU_THRESHOLD:
-          class_idx = Config.VOC_CLASSES.index[best_gt['name']]
+          class_idx = Config.VOC_CLASSES.index(best_gt['name'])
           positive_samples.append((proposal, class_idx))
 
         elif max_iou < 0.3:
@@ -86,12 +86,12 @@ class RCNNDataset(Dataset):
     return cropped_img, label
 
 
-transform = transforms.Compose({
+transform = transforms.Compose([
   transforms.Resize((227, 227)),
   transforms.ToTensor(),
   transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-})
+])
   
-dataset = RCNNDataset(voc_root='data/VOC2007', transform=transforms, max_proposals=150)
+dataset = RCNNDataset(voc_root='data/VOC2007', transform=transform, max_proposals=150)
 dataloader = DataLoader(dataset, batch_size=Config.BATCH_SIZE, shuffle=True, num_workers=2)
 
