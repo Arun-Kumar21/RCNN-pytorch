@@ -1,4 +1,5 @@
 import os
+import torch
 from torch.utils.data import Dataset, DataLoader
 import random
 from PIL import Image
@@ -9,7 +10,7 @@ from config.config import Config
 from utils.VOC_annotation_parser import parse_voc_annotation
 from utils.extract_regions import extract_region_proposals
 from utils.iou import calculate_iou
-
+from utils.bbox_transform import bbox_transform
 
 class RCNNDataset(Dataset):
   def __init__(self, voc_root, transform=None, max_proposals=128, images=500) -> None:
@@ -53,10 +54,10 @@ class RCNNDataset(Dataset):
         # If max_iou greater than threshold it is positive sample
         if max_iou > Config.IOU_THRESHOLD:
           class_idx = Config.VOC_CLASSES.index(best_gt['name'])
-          positive_samples.append((proposal, class_idx))
+          positive_samples.append((proposal, class_idx, best_gt['bbox']))
 
         elif max_iou < 0.3:
-          negative_samples.append((proposal, 0)) # Background class
+          negative_samples.append((proposal, 0, None)) # Background class
 
       random.shuffle(negative_samples)
       negative_samples = negative_samples[:len(positive_samples) * 3]  # 3:1 ratio
@@ -67,23 +68,31 @@ class RCNNDataset(Dataset):
       if len(samples) > self.max_proposals:
         samples = samples[:self.max_proposals]
       
-      for proposal, label in samples:
-        self.samples.append((image_path, proposal, label))
+      for proposal, label, gt_box in samples:
+        self.samples.append((image_path, proposal, label, gt_box))
 
   def __len__(self):
     return len(self.samples)
 
   def __getitem__(self, index):
-    img_path, proposal, label = self.samples[index]
+    img_path, proposal, label, gt_box = self.samples[index]
     
-    img = Image.open(img_path)
+    img = Image.open(img_path).convert('RGB')
     x1, y1, x2, y2 = proposal
     cropped_img = img.crop((x1, y1, x2, y2))
     
     if self.transform:
       cropped_img = self.transform(cropped_img)
-    
-    return cropped_img, label
+
+    if gt_box is not None:
+      proposal_roi = torch.tensor([proposal], dtype=torch.float32)
+      gt_roi = torch.tensor([gt_box], dtype=torch.float32)
+      bbox_target = bbox_transform(proposal_roi, gt_roi)[0]
+
+    else:
+      bbox_target = torch.zeros(4, dtype=torch.float32)
+
+    return cropped_img, label, bbox_target, torch.tensor(proposal, dtype=torch.float32)
 
 
 transform = transforms.Compose([

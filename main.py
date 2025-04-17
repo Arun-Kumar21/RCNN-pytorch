@@ -41,18 +41,17 @@ class Main:
     detected_scores = []
     detected_classes = []
 
-
     for i, proposal in enumerate(proposals):
         x1, y1, x2, y2 = proposal
         cropped_img = Image.fromarray(img).crop((x1, y1, x2, y2))
         transformed_img = transform(cropped_img).unsqueeze(0).to(self.device)
 
         with torch.no_grad():
-            output = self.model(transformed_img)
+            cls_pred, bbox_pred = self.model(transformed_img)
             print(f"Processed proposal {i+1}/{len(proposals)}")
 
         # Get prediction
-        score, class_idx = torch.max(torch.softmax(output, dim=1), dim=1)
+        score, class_idx = torch.max(torch.softmax(cls_pred, dim=0), dim=0)
         score = score.item()
         class_idx = class_idx.item()
 
@@ -60,6 +59,7 @@ class Main:
         if class_idx == 0 or score < 0.5:
             continue
 
+        # You could also refine the bounding box here using `bbox_pred` if needed
         detected_boxes.append(proposal)
         detected_scores.append(score)
         detected_classes.append(class_idx)
@@ -75,20 +75,20 @@ class Main:
 
     for box, score, class_idx in zip(detected_boxes, detected_scores, detected_classes):
         x1, y1, x2, y2 = box
-        rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=2, edgecolor='r', facecolor='none')
+        rect = patches.Rectangle((x1, y1), x2 - x1, y2 - y1, linewidth=2, edgecolor='r', facecolor='none')
         ax.add_patch(rect)
         class_name = Config.VOC_CLASSES[class_idx]
         ax.text(x1, y1, f"{class_name}: {score:.2f}", color='white', backgroundcolor='r')
 
+    if save_path:
+        plt.savefig(save_path)
+        print(f"Output saved to {save_path}")
     if show:
         plt.show()
 
-    if save_path:
-        print(f"Saving result to {save_path}")
-        plt.savefig(save_path)
-        plt.close()
 
 if __name__ == '__main__':
   model = RCNN(Config.NUM_CLASSES) 
-  main = Main(model, 'weights/rcnn_model.pth')
-  main.object_detection('data/VOC2007/JPEGImages/000015.jpg', 'outputs/out-000015.jpg', show=True)
+  main = Main(model, 'weights/rcnn_model_with_bbox.pth')
+  main.object_detection('images/plant.jpg', 'outputs/out-plant.png', show=True)
+  # main.object_detection('data/VOC2007/JPEGImages/000216.jpg', 'outputs/out-216.png', show=True)
