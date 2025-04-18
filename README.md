@@ -5,8 +5,8 @@ This repository provides a PyTorch implementation of the original [RCNN research
 ## TODO List
 
 - [x] Implement region proposal using selective search.
-- [ ] Fine-tune AlexNet on the VOC dataset.
-- [ ] Implement a bounding box regressor for precise localization.
+- [x] Fine-tune AlexNet on the VOC dataset.
+- [x] Implement a bounding box regressor for precise localization.
 - [ ] Apply Non-Maximum Suppression (NMS) to reduce overlapping boxes.
 - [ ] Improve accuracy by integrating a VGG-based architecture.
 
@@ -21,3 +21,16 @@ The resulting output looks like this:
 |----------------|------------------------|
 | ![Original Image](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/000002.jpg) | ![Region Proposal](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/out-0002.jpg) |
 | ![Original Image](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/000004.jpg) | ![Region Proposal](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/out-0004.jpg) |
+
+
+## Object Detection using AlexNet with Bounding Box Regressor
+
+We fine-tune AlexNet on the VOC dataset to classify objects and employ a bounding box regressor for enhanced localization accuracy.
+
+The resulting output looks like this:
+
+| Original Image | Detected Objects |
+|----------------|------------------|
+| ![Original Image](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/000002.jpg) | ![Detected Objects](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/out-002.png) |
+| ![Original Image](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/plant.jpg) | ![Detected Objects](https://myjournalbucket-arun.s3.eu-north-1.amazonaws.com/out-plant.png) |
+

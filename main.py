@@ -90,5 +90,5 @@ class Main:
 if __name__ == '__main__':
   model = RCNN(Config.NUM_CLASSES) 
   main = Main(model, 'weights/rcnn_model_with_bbox.pth')
-  main.object_detection('images/plant.jpg', 'outputs/out-plant.png', show=True)
-  # main.object_detection('data/VOC2007/JPEGImages/000216.jpg', 'outputs/out-216.png', show=True)
+  # main.object_detection('images/plant.jpg', 'outputs/out-plant.png', show=True)
+  main.object_detection('data/VOC2007/JPEGImages/000002.jpg', 'outputs/out-002.png', show=True)
