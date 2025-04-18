@@ -27,7 +27,7 @@ class RCNN(nn.Module):
   def forward(self, x):
     x = self.features(x)
     x = self.avgpool(x)
-    x = torch.flatten(x)
+    x = torch.flatten(x, 1)
     x = self.classifier(x)
 
     cls_score = self.cls_score(x)

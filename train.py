@@ -6,18 +6,15 @@ from config.config import Config
 from models.RCNN import RCNN
 from data.data_loader import dataloader
 
+from loss.RCNN_loss import RCCNLoss
+
 class ModelTrainer:
-    def __init__(self, model, device=Config.DEVICE, lr=Config.LEARNING_RATE, epochs=Config.EPOCHS):
+    def __init__(self, model, criterion, device=Config.DEVICE, lr=Config.LEARNING_RATE, epochs=Config.EPOCHS):
         self.device = device
         self.model = model.to(self.device)
-        self.criterion = self.custom_criterion
+        self.criterion = criterion 
         self.optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4)
         self.epochs = epochs
-
-    def custom_criterion(self, cls_pred, bbox_pred, cls_targets, bbox_targets):
-        cls_loss = nn.CrossEntropyLoss()(cls_pred, cls_targets)
-        reg_loss = nn.SmoothL1Loss()(bbox_pred, bbox_targets)
-        return cls_loss + reg_loss, cls_loss, reg_loss
 
     def train_one_epoch(self, dataloader):
         self.model.train()
@@ -84,5 +81,6 @@ class ModelTrainer:
 
 if __name__ == '__main__':
     model = RCNN(Config.NUM_CLASSES)
-    trainer = ModelTrainer(model)
+    criterion = RCCNLoss(lambda_reg=1.0)
+    trainer = ModelTrainer(model, criterion)
     trainer.train(dataloader, './weights/rcnn_model.pth')
